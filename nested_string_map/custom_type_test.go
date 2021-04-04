@@ -10,8 +10,8 @@ type custom struct {
 	T
 }
 
-func (c *custom) AtInt(path ...string) (value int, ok bool) {
-	v, ok := c.At(path...)
+func (c *custom) GetInt(path ...string) (value int, ok bool) {
+	v, ok := c.Get(path...)
 	if ok {
 		value, ok = v.(int)
 	}
@@ -33,7 +33,7 @@ func TestCustomType(t *testing.T) {
 			path: []string{"first", "second"},
 			input: func() (m custom) {
 				m = custom{}
-				m.Set(5, "invalid", "path")
+				m.Put(5, "invalid", "path")
 				return
 			}(),
 		},
@@ -41,7 +41,7 @@ func TestCustomType(t *testing.T) {
 			path: []string{"first", "second"},
 			input: func() (m custom) {
 				m = custom{}
-				m.Set(5, "first", "second")
+				m.Put(5, "first", "second")
 				return
 			}(),
 			expected:      5,
@@ -51,7 +51,7 @@ func TestCustomType(t *testing.T) {
 			path: []string{"first"},
 			input: func() (m custom) {
 				m = custom{}
-				m.Set(5, "first", "second")
+				m.Put(5, "first", "second")
 				return
 			}(),
 			expectedFound: false,
@@ -60,9 +60,9 @@ func TestCustomType(t *testing.T) {
 			path: []string{"first", "second"},
 			input: func() (m custom) {
 				m = custom{}
-				m.Set(2, "first", "second")
-				m.Set(3, "first", "third")
-				m.Set(4, "first", "fourth")
+				m.Put(2, "first", "second")
+				m.Put(3, "first", "third")
+				m.Put(4, "first", "fourth")
 				return
 			}(),
 			expected:      2,
@@ -72,7 +72,7 @@ func TestCustomType(t *testing.T) {
 
 	for caseName, c := range cases {
 		t.Run(caseName, func(t *testing.T) {
-			actual, ok := c.input.AtInt(c.path...)
+			actual, ok := c.input.GetInt(c.path...)
 			if c.expectedFound {
 				require.True(t, ok)
 				assert.Equal(t, c.expected, actual)
