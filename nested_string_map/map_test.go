@@ -17,6 +17,16 @@ func TestT_At(t *testing.T) {
 			input: T{},
 			path:  []string{"first", "second"},
 		},
+		"with item at root it succeeds": {
+			input: func() (m T) {
+				m = T{}
+				m.Put(5, RootPath...)
+				return
+			}(),
+			path:          RootPath,
+			expected:      5,
+			expectedFound: true,
+		},
 		"with item with invalid path it returns nothing": {
 			input: func() (m T) {
 				m = T{}
@@ -85,12 +95,12 @@ func TestT_Remove(t *testing.T) {
 			path:  []string{"first", "second"},
 		},
 		"remove non-existent item initialized": {
-			input: T{items: make(mapType)},
+			input: T{},
 			path:  []string{"first", "second"},
 		},
 		"removes item initialized": {
 			input: func() (m T) {
-				m = T{items: make(mapType)}
+				m = T{}
 				m.Put(5, "first", "second")
 				return
 			}(),
@@ -143,7 +153,7 @@ func TestT_Keys(t *testing.T) {
 		expected [][]string
 	}{
 		"empty": {
-			input:    T{items: make(mapType)},
+			input:    T{},
 			expected: [][]string{},
 		},
 		"with uninitialized empty": {
@@ -214,6 +224,14 @@ func Test_deleteEmptyParentPathsRejectsMissingBranches(t *testing.T) {
 	actual.deleteEmptyParentPaths("some", "missing-path")
 	_, ok := actual.Get("some", "path")
 	assert.True(t, ok)
+}
+
+func Test_deleteEmptyParentPathsRemoveEmptyBranches(t *testing.T) {
+	actual := T{}
+	actual.Put(nil, "some", "path", "location")
+	actual.deleteEmptyParentPaths("some", "path", "location")
+	_, ok := actual.Get("some", "path", "location")
+	assert.False(t, ok)
 }
 
 func Test_deleteEmptyParentPathsIgnoresUninitializedItems(t *testing.T) {
